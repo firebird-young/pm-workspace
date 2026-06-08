@@ -11,6 +11,9 @@ app.use('/*', cors({
 const VALID_USERNAME = 'youngoku'
 const VALID_PASSWORD = 'yyz111'
 
+// Token 过期时间：7 天（毫秒）
+const TOKEN_EXPIRE_TIME = 7 * 24 * 60 * 60 * 1000
+
 // 简单的认证中间件
 const authenticate = async (c, next) => {
   const authHeader = c.req.header('Authorization')
@@ -24,13 +27,38 @@ const authenticate = async (c, next) => {
     ? authHeader.substring(7)
     : authHeader
   
-  const storedToken = await c.env.PROJECTS_DB.get('auth_token')
+  const tokenData = await c.env.PROJECTS_DB.get('auth_token')
   
-  if (token !== storedToken) {
+  if (!tokenData) {
     return c.json({ error: '登录失效' }, 401)
   }
   
-  await next()
+  try {
+    const { token: storedToken, expiresAt } = JSON.parse(tokenData)
+    
+    // 检查 token 是否过期
+    if (Date.now() > expiresAt) {
+      return c.json({ error: '登录已过期' }, 401)
+    }
+    
+    if (token !== storedToken) {
+      return c.json({ error: '登录失效' }, 401)
+    }
+    
+    // 自动续期：如果剩余时间少于 3 天，延长过期时间
+    if (expiresAt - Date.now() < 3 * 24 * 60 * 60 * 1000) {
+      const newExpiresAt = Date.now() + TOKEN_EXPIRE_TIME
+      await c.env.PROJECTS_DB.put('auth_token', JSON.stringify({
+        token: storedToken,
+        expiresAt: newExpiresAt
+      }))
+    }
+    
+    await next()
+  } catch (error) {
+    console.error('Auth error:', error)
+    return c.json({ error: '认证失败' }, 401)
+  }
 }
 
 // 登录接口
@@ -41,8 +69,9 @@ app.post('/api/login', async (c) => {
     
     if (username === VALID_USERNAME && password === VALID_PASSWORD) {
       const token = Date.now().toString() + Math.random().toString(36).substr(2)
-      await c.env.PROJECTS_DB.put('auth_token', token)
-      return c.json({ success: true, token })
+      const expiresAt = Date.now() + TOKEN_EXPIRE_TIME
+      await c.env.PROJECTS_DB.put('auth_token', JSON.stringify({ token, expiresAt }))
+      return c.json({ success: true, token, expiresAt })
     }
     
     return c.json({ error: '用户名或密码错误' }, 401)
@@ -65,10 +94,20 @@ app.get('/api/auth/status', async (c) => {
     ? authHeader.substring(7)
     : authHeader
     
-  const storedToken = await c.env.PROJECTS_DB.get('auth_token')
+  const tokenData = await c.env.PROJECTS_DB.get('auth_token')
   
-  if (token && token === storedToken) {
-    return c.json({ loggedIn: true })
+  if (!tokenData) {
+    return c.json({ loggedIn: false })
+  }
+  
+  try {
+    const { token: storedToken, expiresAt } = JSON.parse(tokenData)
+    
+    if (token && token === storedToken && Date.now() <= expiresAt) {
+      return c.json({ loggedIn: true })
+    }
+  } catch (error) {
+    console.error('Status check error:', error)
   }
   
   return c.json({ loggedIn: false })

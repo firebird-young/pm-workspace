@@ -1,3 +1,10 @@
-name = "pm-workspace-frontend"
+name = "pm-workspace"
 compatibility_date = "2024-09-23"
-pages_build_output_dir = "public"
+main = "src/index.js"
+
+[vars]
+API_BASE = "https://pm-workspace.your-domain.workers.dev"
+
+[[kv_namespaces]]
+binding = "PROJECTS_DB"
+id = "fcd2ef009bbb4868af0ccceed7ee5a7c"
