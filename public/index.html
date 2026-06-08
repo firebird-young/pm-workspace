@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>项目管理 - PM工作台</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- 登录页面 -->
+  <div id="loginPage" class="login-page" style="display: none;">
+    <div class="login-container">
+      <div class="login-header">
+        <h1>📋 PM工作台</h1>
+        <p>产品经理工作台</p>
+      </div>
+      <div class="login-form">
+        <div class="form-group">
+          <label>用户名</label>
+          <input type="text" id="loginUsername" placeholder="请输入用户名">
+        </div>
+        <div class="form-group">
+          <label>密码</label>
+          <input type="password" id="loginPassword" placeholder="请输入密码">
+        </div>
+        <div class="error-message" id="loginError" style="display: none;"></div>
+        <button class="btn btn-primary btn-login" id="loginBtn">登录</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主应用容器 -->
+  <div id="appContainer" class="app-container" style="display: none;">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="logo">
+        <h1>📋 PM工作台</h1>
+      </div>
+      <nav class="nav-menu">
+        <button class="nav-item active" data-view="projects">
+          <span class="icon">📁</span>
+          <span>项目管理</span>
+        </button>
+        <button class="nav-item" data-view="kanban">
+          <span class="icon">📊</span>
+          <span>需求看板</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn btn-logout" id="logoutBtn">🔓 退出登录</button>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 顶部工具栏 -->
+      <header class="top-bar">
+        <div class="page-title" id="pageTitle">项目管理</div>
+        <div class="actions">
+          <button class="btn btn-primary" id="addProjectBtn">
+            <span>+</span> 添加项目
+          </button>
+        </div>
+      </header>
+
+      <!-- 项目列表视图 -->
+      <div id="projectsView" class="view active">
+        <div class="projects-grid" id="projectsGrid">
+          <!-- 项目卡片将动态生成 -->
+        </div>
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon">📭</div>
+          <p>暂无项目，点击上方按钮创建</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 添加项目模态框 -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">添加项目</h3>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="modalForm">
+          <div class="form-group">
+            <label>项目头像</label>
+            <input type="file" id="inputAvatar" accept="image/*" placeholder="请选择头像图片">
+            <div class="avatar-preview" id="avatarPreview"></div>
+          </div>
+          <div class="form-group">
+            <label>项目名称</label>
+            <input type="text" id="inputName" required placeholder="请输入项目名称">
+          </div>
+          <div class="form-group">
+            <label>项目描述</label>
+            <textarea id="inputDesc" placeholder="请输入项目描述"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" id="modalCancel">取消</button>
+        <button class="btn btn-primary" id="modalSubmit">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="projects.js"></script>
+</body>
+</html>

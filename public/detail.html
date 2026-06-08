@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>项目详情 - PM工作台</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- 登录页面 -->
+  <div id="loginPage" class="login-page" style="display: none;">
+    <div class="login-container">
+      <div class="login-header">
+        <h1>📋 PM工作台</h1>
+        <p>产品经理工作台</p>
+      </div>
+      <div class="login-form">
+        <div class="form-group">
+          <label>用户名</label>
+          <input type="text" id="loginUsername" placeholder="请输入用户名">
+        </div>
+        <div class="form-group">
+          <label>密码</label>
+          <input type="password" id="loginPassword" placeholder="请输入密码">
+        </div>
+        <div class="error-message" id="loginError" style="display: none;"></div>
+        <button class="btn btn-primary btn-login" id="loginBtn">登录</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主应用容器 -->
+  <div id="appContainer" class="app-container" style="display: none;">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="logo">
+        <h1>📋 PM工作台</h1>
+      </div>
+      <nav class="nav-menu">
+        <button class="nav-item" data-view="index">
+          <span class="icon">📁</span>
+          <span>项目管理</span>
+        </button>
+        <button class="nav-item" data-view="kanban">
+          <span class="icon">📊</span>
+          <span>需求看板</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn btn-logout" id="logoutBtn">🔓 退出登录</button>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 顶部工具栏 -->
+      <header class="top-bar">
+        <div class="actions">
+          <button class="btn btn-back" id="backBtn">
+            <span>←</span> 返回列表
+          </button>
+        </div>
+        <div class="page-title" id="pageTitle">项目详情</div>
+        <div class="actions"></div>
+      </header>
+
+      <!-- 项目详情视图 -->
+      <div id="detailView" class="view active">
+        <div class="detail-content">
+          <div class="detail-header">
+            <h2 id="projectName">项目名称</h2>
+            
+            <!-- Tab切换 -->
+            <div class="detail-tabs">
+              <button class="tab-item active" data-tab="main">项目信息</button>
+              <button class="tab-item" data-tab="info">相关信息</button>
+            </div>
+          </div>
+
+          <!-- Tab内容 - 项目信息 -->
+          <div id="tabMain" class="tab-content active">
+            <div class="project-info">
+              <p id="projectDesc">项目描述</p>
+              <div class="project-meta">
+                <span>状态: <span id="projectStatus" class="status active">进行中</span></span>
+                <span>创建时间: <span id="projectCreated">2024-01-01</span></span>
+              </div>
+            </div>
+
+            <!-- 项目看板 -->
+            <div class="section">
+              <div class="section-header">
+                <h3>项目看板</h3>
+                <button class="btn btn-secondary" id="addBoardBtn">
+                  <span>+</span> 添加看板
+                </button>
+              </div>
+              <div class="board-list" id="boardList">
+                <!-- 看板项将动态生成 -->
+              </div>
+            </div>
+
+            <!-- 需求列表 -->
+            <div class="section">
+              <div class="section-header">
+                <h3>需求列表</h3>
+                <button class="btn btn-secondary" id="addRequirementBtn">
+                  <span>+</span> 添加需求
+                </button>
+              </div>
+              <div class="requirements-list" id="requirementsList">
+                <!-- 需求项将动态生成 -->
+              </div>
+              <div class="empty-state" id="emptyRequirements" style="display: none;">
+                <div class="empty-icon">📝</div>
+                <p>暂无需求，点击上方按钮添加</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab内容 - 项目相关信息 -->
+          <div id="tabInfo" class="tab-content">
+            <div class="section">
+              <div class="section-header">
+                <h3>项目相关信息</h3>
+                <button class="btn btn-secondary btn-edit-info" id="editInfoBtn">
+                  <span>✏️</span> 编辑
+                </button>
+              </div>
+              <div class="info-content" id="infoContent">
+                <div id="projectInfoText">暂无相关信息</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 添加需求模态框 -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">添加需求</h3>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="modalForm">
+          <div class="form-group">
+            <label>需求标题</label>
+            <input type="text" id="inputName" required placeholder="请输入需求标题">
+          </div>
+          <div class="form-group">
+            <label>需求描述</label>
+            <textarea id="inputDesc" placeholder="请输入需求描述"></textarea>
+          </div>
+          <div class="form-group" id="priorityGroup">
+            <label>优先级</label>
+            <select id="inputPriority">
+              <option value="high">高</option>
+              <option value="medium" selected>中</option>
+              <option value="low">低</option>
+            </select>
+          </div>
+          <div class="form-group" id="statusGroup">
+            <label>状态</label>
+            <select id="inputStatus">
+              <option value="pending" selected>待处理</option>
+              <option value="finalized">需求定稿</option>
+              <option value="in-progress">开发中</option>
+              <option value="done">已完结</option>
+            </select>
+          </div>
+          <div class="form-group" id="progressGroup">
+            <label>进度: <span id="progressValue">0%</span></label>
+            <input type="range" id="inputProgress" min="0" max="100" value="0">
+          </div>
+          <div class="form-group" id="prototypeGroup">
+            <label>原型链接</label>
+            <input type="url" id="inputPrototype" placeholder="请输入原型链接">
+          </div>
+          <div class="form-group" id="sourceGroup">
+            <label>需求来源</label>
+            <input type="text" id="inputSource" placeholder="请输入需求来源">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" id="modalCancel">取消</button>
+        <button class="btn btn-primary" id="modalSubmit">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加看板模态框 -->
+  <div id="boardModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="boardModalTitle">添加看板</h3>
+        <button class="modal-close" id="boardModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="boardModalForm">
+          <div class="form-group">
+            <label>看板名称</label>
+            <input type="text" id="boardName" required placeholder="请输入看板名称">
+          </div>
+          <div class="form-group">
+            <label>看板描述</label>
+            <textarea id="boardDesc" placeholder="请输入看板描述"></textarea>
+          </div>
+          <div class="form-group">
+            <label>看板链接</label>
+            <input type="url" id="boardUrl" required placeholder="请输入看板链接">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" id="boardModalCancel">取消</button>
+        <button class="btn btn-primary" id="boardModalSubmit">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑项目相关信息模态框 -->
+  <div id="infoModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="infoModalTitle">编辑项目相关信息</h3>
+        <button class="modal-close" id="infoModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="infoModalForm">
+          <div class="form-group">
+            <label>项目相关信息</label>
+            <!-- 富文本编辑器工具栏 -->
+            <div class="rich-editor-toolbar">
+              <button type="button" class="toolbar-btn" data-command="bold" title="加粗">
+                <strong>B</strong>
+              </button>
+              <button type="button" class="toolbar-btn" data-command="italic" title="斜体">
+                <em>I</em>
+              </button>
+              <button type="button" class="toolbar-btn" data-command="underline" title="下划线">
+                <u>U</u>
+              </button>
+              <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="无序列表">
+                •
+              </button>
+              <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="有序列表">
+                1.
+              </button>
+            </div>
+            <!-- 富文本编辑区域 -->
+            <div id="inputInfo" class="rich-editor" contenteditable="true" placeholder="请输入项目相关信息"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" id="infoModalCancel">取消</button>
+        <button class="btn btn-primary" id="infoModalSubmit">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="detail.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>需求看板 - PM工作台</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- 登录页面 -->
+  <div id="loginPage" class="login-page" style="display: none;">
+    <div class="login-container">
+      <div class="login-header">
+        <h1>📋 PM工作台</h1>
+        <p>产品经理工作台</p>
+      </div>
+      <div class="login-form">
+        <div class="form-group">
+          <label>用户名</label>
+          <input type="text" id="loginUsername" placeholder="请输入用户名">
+        </div>
+        <div class="form-group">
+          <label>密码</label>
+          <input type="password" id="loginPassword" placeholder="请输入密码">
+        </div>
+        <div class="error-message" id="loginError" style="display: none;"></div>
+        <button class="btn btn-primary btn-login" id="loginBtn">登录</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主应用容器 -->
+  <div id="appContainer" class="app-container" style="display: none;">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="logo">
+        <h1>📋 PM工作台</h1>
+      </div>
+      <nav class="nav-menu">
+        <button class="nav-item" data-view="index">
+          <span class="icon">📁</span>
+          <span>项目管理</span>
+        </button>
+        <button class="nav-item active" data-view="kanban">
+          <span class="icon">📊</span>
+          <span>需求看板</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn btn-logout" id="logoutBtn">🔓 退出登录</button>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 顶部工具栏 -->
+      <header class="top-bar">
+        <div class="page-title" id="pageTitle">需求看板</div>
+        <div class="filter-container">
+          <label class="filter-label">选择项目:</label>
+          <select id="projectFilter" class="project-select">
+            <option value="all">全部项目</option>
+          </select>
+        </div>
+      </header>
+
+      <!-- 看板视图 -->
+      <div id="kanbanView" class="view active">
+        <div class="kanban-board" id="kanbanBoard">
+          <!-- 待处理 -->
+          <div class="kanban-column">
+            <div class="column-header pending">
+              <span class="column-title">待处理</span>
+              <span class="column-count" id="pendingCount">0</span>
+            </div>
+            <div class="column-content" id="pendingColumn">
+              <!-- 卡片将动态生成 -->
+            </div>
+          </div>
+          
+          <!-- 需求定稿 -->
+          <div class="kanban-column">
+            <div class="column-header finalized">
+              <span class="column-title">需求定稿</span>
+              <span class="column-count" id="finalizedCount">0</span>
+            </div>
+            <div class="column-content" id="finalizedColumn">
+              <!-- 卡片将动态生成 -->
+            </div>
+          </div>
+          
+          <!-- 开发中 -->
+          <div class="kanban-column">
+            <div class="column-header in-progress">
+              <span class="column-title">开发中</span>
+              <span class="column-count" id="inProgressCount">0</span>
+            </div>
+            <div class="column-content" id="inProgressColumn">
+              <!-- 卡片将动态生成 -->
+            </div>
+          </div>
+          
+          <!-- 已完结 -->
+          <div class="kanban-column">
+            <div class="column-header done">
+              <span class="column-title">已完结</span>
+              <span class="column-count" id="doneCount">0</span>
+            </div>
+            <div class="column-content" id="doneColumn">
+              <!-- 卡片将动态生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 需求详情模态框 -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">需求详情</h3>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>需求标题</label>
+          <input type="text" id="inputName" required placeholder="请输入需求标题">
+        </div>
+        <div class="form-group">
+          <label>需求描述</label>
+          <textarea id="inputDesc" placeholder="请输入需求描述"></textarea>
+        </div>
+        <div class="form-group">
+          <label>优先级</label>
+          <select id="inputPriority">
+            <option value="high">高</option>
+            <option value="medium" selected>中</option>
+            <option value="low">低</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>状态</label>
+          <select id="inputStatus">
+            <option value="pending" selected>待处理</option>
+            <option value="finalized">需求定稿</option>
+            <option value="in-progress">开发中</option>
+            <option value="done">已完结</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>进度: <span id="progressValue">0%</span></label>
+          <input type="range" id="inputProgress" min="0" max="100" value="0">
+        </div>
+        <div class="form-group">
+          <label>原型链接</label>
+          <input type="url" id="inputPrototype" placeholder="请输入原型链接">
+        </div>
+        <div class="form-group">
+          <label>需求来源</label>
+          <input type="text" id="inputSource" placeholder="请输入需求来源">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel" id="modalCancel">取消</button>
+        <button class="btn btn-primary" id="modalSubmit">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="kanban.js"></script>
+</body>
+</html>
